@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Database Container (MongoDB) - Docker's own instance
+  database:
+    image: mongo:latest
+    container_name: saritrack-db
+    ports:
+      - "27019:27017"   # host:27019 -> container:27017 (avoids conflict with local MongoDB on 27018)
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - saritrack-network
+
+  # Node.js Express Server
+  backend:
+    build: ./backend
+    container_name: saritrack-backend
+    env_file:
+      - ./backend/.env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      - database
+    networks:
+      - saritrack-network
+
+  # Next.js/React Frontend
+  frontend:
+    build: ./frontend
+    container_name: saritrack-frontend
+    env_file:
+      - ./frontend/.env.local
+    environment:
+      - WATCHPACK_POLLING=true
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - saritrack-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: saritrack-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - saritrack-network
+
+networks:
+  saritrack-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
