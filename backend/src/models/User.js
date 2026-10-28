@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true
-    // used to identify repeat customers (Suki tracking) and staff login
+    // used for login (customers, cashiers) + Suki tracking
   },
   role: {
     type: String,
@@ -21,9 +21,27 @@ const userSchema = new mongoose.Schema({
   passwordHash: {
     type: String,
     required: function () {
-      return this.role === 'admin' || this.role === 'cashier';
-      // customers don't need accounts/passwords — guest ordering via contactNumber
+      return this.role === 'admin' || this.role === 'cashier' || this.role === 'customer';
+      // all roles now need a password (customer auth required)
     }
+  },
+  // --- Customer-specific fields ---
+  gmail: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    default: null
+  },
+  location: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  age: {
+    type: Number,
+    min: 0,
+    max: 120,
+    default: null
   },
   isActive: {
     type: Boolean,

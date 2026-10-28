@@ -94,3 +94,4 @@ a {
 }
 .badge-green { background: #E6F4EA; color: var(--dark-green); }
 .badge-yellow { background: #FFF6DE; color: #8a6d00; }
+.badge-red { background: #FDEBEC; color: #C0392B; }

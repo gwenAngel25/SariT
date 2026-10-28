@@ -6,14 +6,18 @@ const {
   createProduct,
   updateProduct,
   deleteProduct,
-  adjustStock
+  adjustStock,
 } = require('../controllers/productController');
+const { requireAuth, requireRole } = require('../middleware/authMiddleware');
 
+// Public — customers can browse
 router.get('/', getAllProducts);
 router.get('/:id', getProductById);
-router.post('/', createProduct);
-router.put('/:id', updateProduct);
-router.delete('/:id', deleteProduct);
-router.patch('/:id/stock', adjustStock);
+
+// Admin-only
+router.post('/', requireAuth, requireRole('admin'), createProduct);
+router.put('/:id', requireAuth, requireRole('admin'), updateProduct);
+router.delete('/:id', requireAuth, requireRole('admin'), deleteProduct);
+router.patch('/:id/stock', requireAuth, requireRole('admin'), adjustStock);
 
 module.exports = router;

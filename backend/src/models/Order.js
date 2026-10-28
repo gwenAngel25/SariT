@@ -60,7 +60,8 @@ const orderSchema = new mongoose.Schema({
       'queued',            // inside geofence, active in FIFO queue
       'staging',            // cashier is picking/packing items
       'ready_for_pickup',   // staged & waiting for customer to be called
-      'paid',                // payment verified, transaction complete
+      'paid',
+      'completed',                // payment verified, transaction complete
       'cancelled'
     ],
     default: 'staged_pending'
@@ -72,6 +73,21 @@ const orderSchema = new mongoose.Schema({
     priority: { type: Boolean, default: false },
     calledAt: { type: Date, default: null }
   },
+
+  // --- Handover Lock (Step 6) ---
+releasedAt: {
+  type: Date,
+  default: null,
+  // null = not yet released to customer
+  // timestamp = items handed over at this time
+},
+releasedBy: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User',
+  default: null,
+  // the cashier who released the items
+},
+
 
   // --- Payment reference (M6: Cryptographic QR Verification) ---
   paymentMethod: {
